@@ -45,6 +45,41 @@ Commands:
 Run "gurl <command> --help" for more information on a command.
 ```
 
+Each command has it's own help, for example:
+
+```text
+$ gurl post --help
+
+Usage: gurl post <url>
+
+POST HTTP method.
+
+Arguments:
+  <url>    Url to access.
+
+Flags:
+  -h, --help                     Show context-sensitive help.
+  -a, --auth=STRING              Basic HTTP authentication in the format
+                                 username:password.
+  -b, --bearer-token=STRING      Set bearer auth token.
+      --disable-redirect         Disable redirects (default: disabled).
+  -H, --headers=KEY=VALUE;...    HTTP headers in the format:
+                                 "header1=value1;header2=value2".
+  -i, --insecure                 Allow insecure SSL connections (default:
+                                 disabled).
+  -t, --timeout=10000            Timeout in milliseconds.
+      --tls-finger="go"          TLS Fingerprint: chrome, firefox, edge, safari,
+                                 ios, android, random or go.
+      --trace                    Show tracing/performance information (default:
+                                 disabled).
+  -u, --user-agent=STRING        Set User-Agent http header.
+  -v, --verbose                  Enable verbose/debug mode (default: disabled).
+
+  -d, --data=STRING              Data payload (request body).
+  -c, --content-type=STRING      Content-Type http header, default is
+                                 application/json.
+```
+
 ## Example
 
 ```text
