@@ -1,15 +1,15 @@
 # gurl
 A simple http client cli written in Go.
 
-# Install
+## Install
 
-```
+```shell
 go install github.com/pdrb/gurl@latest
 ```
 
-# Usage
+## Usage
 
-```
+```text
 Usage: gurl <command>
 
 A simple http client cli written in Go.
@@ -45,9 +45,9 @@ Commands:
 Run "gurl <command> --help" for more information on a command.
 ```
 
-# Example
+## Example
 
-```bash
+```text
 $ gurl post 'https://httpbin.org/anything?var1=value1&var2=value2' \
     -a user:pass -H 'header1=value1;header2=value2' \
     -d '{"user": "name"}' \
