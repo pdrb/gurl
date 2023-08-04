@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -250,6 +251,7 @@ func main() {
 	switch ctx.Command() {
 	case "version":
 		fmt.Println(gurlVersion)
+		os.Exit(0)
 	case "head <url>":
 		resp = doHeadRequest()
 	case "get <url>":
