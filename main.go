@@ -65,8 +65,8 @@ var cli struct {
 
 // Set application/json content-type http header for post, put and patch methods
 func setContentHeader(httpMethod string) {
-	headers := []string{"post", "put", "patch"}
-	if slices.Contains(headers, httpMethod) {
+	methods := []string{"post", "put", "patch"}
+	if slices.Contains(methods, httpMethod) {
 		req.SetCommonContentType("application/json; charset=utf-8")
 	}
 }
