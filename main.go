@@ -137,7 +137,7 @@ func printResponse(rawStr string) {
 		fmt.Print(rawStr)
 	} else {
 		fomatter := colorjson.NewFormatter()
-		fomatter.Indent = 4
+		fomatter.Indent = 2
 		prettyJson, _ := fomatter.Marshal(jsonObj)
 		fmt.Print(string(prettyJson))
 	}
