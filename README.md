@@ -3,9 +3,13 @@ A simple http client cli written in Go.
 
 ## Install
 
+Install compiling from source using Go:
+
 ```shell
 go install github.com/pdrb/gurl@latest
 ```
+
+Or download the appropriate pre-built binary from [Releases](https://github.com/pdrb/gurl/releases).
 
 ## Usage
 
