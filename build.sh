@@ -9,8 +9,6 @@ linux_amd64_file='gurl-linux-x86_64'
 linux_arm64_file='gurl-linux-arm64'
 mac_amd64_file='gurl-mac-x86_64'
 mac_arm64_file='gurl-mac-arm64'
-windows_amd64_file='gurl-windows-x86_64.exe'
-windows_arm64_file='gurl-windows-arm64.exe'
 
 # Show go version
 go version
@@ -34,16 +32,6 @@ gzip -f "$mac_amd64_file"
 echo "- Building for arm64..."
 GOOS=darwin GOARCH=arm64 go build -o "$mac_arm64_file" main.go
 gzip -f "$mac_arm64_file"
-echo
-
-# Windows
-echo "------- Windows Build -------"
-echo "- Building for amd64..."
-GOOS=windows GOARCH=amd64 go build -o "$windows_amd64_file" main.go
-gzip -f "$windows_amd64_file"
-echo "- Building for arm64..."
-GOOS=windows GOARCH=arm64 go build -o "$windows_arm64_file" main.go
-gzip -f "$windows_arm64_file"
 echo
 
 echo -e "Build successfully! :)"
