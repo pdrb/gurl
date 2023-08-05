@@ -22,14 +22,15 @@ const gurlVersion = "1.0.0"
 var cli struct {
 	Auth            string            `help:"Basic HTTP authentication in the format username:password." short:"a"`
 	BearerToken     string            `help:"Set bearer auth token." short:"b"`
-	DisableRedirect bool              `help:"Disable redirects (default: disabled)." default:"false"`
+	DisableRedirect bool              `help:"Disable redirects." default:"false"`
 	Headers         map[string]string `help:"HTTP headers in the format: \"header1=value1;header2=value2\"." short:"H"`
-	Insecure        bool              `help:"Allow insecure SSL connections (default: disabled)." short:"i" default:"false"`
+	Insecure        bool              `help:"Allow insecure SSL connections." short:"i" default:"false"`
+	RawResponse     bool              `help:"Print raw response string (disable json prettify)." default:"false"`
 	Timeout         int               `help:"Timeout in milliseconds." short:"t" default:"10000"`
 	TlsFinger       string            `help:"TLS Fingerprint: chrome, firefox, edge, safari, ios, android, random or go." enum:"chrome, firefox, edge, safari, ios, android, random, go" default:"go"`
-	Trace           bool              `help:"Show tracing/performance information (default: disabled)." default:"false"`
+	Trace           bool              `help:"Show tracing/performance information." default:"false"`
 	UserAgent       string            `help:"Set User-Agent http header." short:"u"`
-	Verbose         bool              `help:"Enable verbose/debug mode (default: disabled)." short:"v" default:"false"`
+	Verbose         bool              `help:"Enable verbose/debug mode." short:"v" default:"false"`
 
 	Get struct {
 		Url string `arg:"" help:"Url to access."`
@@ -132,6 +133,10 @@ func configRequest(ctx *kong.Context) {
 // Print raw string response or a prettified json if possible
 func printResponse(rawStr string) {
 	var jsonObj map[string]interface{}
+	if cli.RawResponse {
+		fmt.Print(rawStr)
+		return
+	}
 	err := json.Unmarshal([]byte(rawStr), &jsonObj)
 	if err != nil {
 		fmt.Print(rawStr)
