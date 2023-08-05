@@ -19,7 +19,7 @@ jobs:
       - name: Build gurl
         run: bash build.sh
       - name: Test
-        run: gunzip gurl-linux-x86_64.gz && ./gurl-linux-x86_64 -h
+        run: gunzip gurl-linux-x86_64.gz && ./gurl-linux-x86_64 -h && gzip -f gurl-linux-x86_64
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
