@@ -26,9 +26,14 @@ Flags:
       --disable-redirect         Disable redirects.
   -H, --headers=KEY=VALUE;...    HTTP headers in the format:
                                  "header1=value1;header2=value2".
+      --impersonate="none"       Fully impersonate chrome, firefox or safari
+                                 browser (this will automatically set headers,
+                                 headers order and tls fingerprint).
   -i, --insecure                 Allow insecure SSL connections.
       --raw-response             Print raw response string (disable json
                                  prettify).
+  -r, --retries=0                Number of retries in case of errors and http
+                                 status code >= 500.
   -t, --timeout=10000            Timeout in milliseconds.
       --tls-finger="go"          TLS Fingerprint: chrome, firefox, edge, safari,
                                  ios, android, random or go.
@@ -69,9 +74,14 @@ Flags:
       --disable-redirect         Disable redirects.
   -H, --headers=KEY=VALUE;...    HTTP headers in the format:
                                  "header1=value1;header2=value2".
+      --impersonate="none"       Fully impersonate chrome, firefox or safari
+                                 browser (this will automatically set headers,
+                                 headers order and tls fingerprint).
   -i, --insecure                 Allow insecure SSL connections.
       --raw-response             Print raw response string (disable json
                                  prettify).
+  -r, --retries=0                Number of retries in case of errors and http
+                                 status code >= 500.
   -t, --timeout=10000            Timeout in milliseconds.
       --tls-finger="go"          TLS Fingerprint: chrome, firefox, edge, safari,
                                  ios, android, random or go.
