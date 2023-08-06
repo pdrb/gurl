@@ -16,7 +16,7 @@ import (
 )
 
 // Program version
-const gurlVersion = "1.0.0"
+const gurlVersion = "1.1.0"
 
 // Cli arguments
 var cli struct {
@@ -24,6 +24,7 @@ var cli struct {
 	BearerToken     string            `help:"Set bearer auth token." short:"b"`
 	DisableRedirect bool              `help:"Disable redirects." default:"false"`
 	Headers         map[string]string `help:"HTTP headers in the format: \"header1=value1;header2=value2\"." short:"H"`
+	Impersonate     string            `help:"Fully impersonate chrome, firefox or safari browser (this will automatically set headers, headers order and tls fingerprint)." enum:"chrome, firefox, safari, none" default:"none"`
 	Insecure        bool              `help:"Allow insecure SSL connections." short:"i" default:"false"`
 	RawResponse     bool              `help:"Print raw response string (disable json prettify)." default:"false"`
 	Timeout         int               `help:"Timeout in milliseconds." short:"t" default:"10000"`
@@ -65,35 +66,35 @@ var cli struct {
 }
 
 // Set application/json content-type http header for post, put and patch methods
-func setContentHeader(httpMethod string) {
+func setContentHeader(httpMethod string, request *req.Request) {
 	methods := []string{"post", "put", "patch"}
 	if slices.Contains(methods, httpMethod) {
-		req.SetCommonContentType("application/json; charset=utf-8")
+		request.SetContentType("application/json; charset=utf-8")
 	}
 }
 
 // Configure our http request
-func configRequest(ctx *kong.Context) {
+func configRequest(ctx *kong.Context, request *req.Request) {
 	// Set default http scheme if no scheme is provided
-	req.SetScheme("http")
+	request.GetClient().SetScheme("http")
 	// Set application/json content-type for post, put and patch methods
-	setContentHeader(ctx.Args[0])
+	setContentHeader(ctx.Args[0], request)
 	if cli.Auth != "" {
 		splitAuth := strings.Split(cli.Auth, ":")
 		user, pass := splitAuth[0], splitAuth[1]
-		req.SetCommonBasicAuth(user, pass)
+		request.SetBasicAuth(user, pass)
 	}
 	if cli.BearerToken != "" {
-		req.SetCommonBearerAuthToken(cli.BearerToken)
+		request.SetBearerAuthToken(cli.BearerToken)
 	}
 	if cli.DisableRedirect {
-		req.SetRedirectPolicy(req.NoRedirectPolicy())
+		request.GetClient().SetRedirectPolicy(req.NoRedirectPolicy())
 	}
 	if len(cli.Headers) > 0 {
-		req.SetCommonHeaders(cli.Headers)
+		request.SetHeaders(cli.Headers)
 	}
 	if cli.Insecure {
-		req.EnableInsecureSkipVerify()
+		request.GetClient().EnableInsecureSkipVerify()
 	}
 	// Sites to check finger hash:
 	// - https://tls.peet.ws/api/clean
@@ -101,33 +102,45 @@ func configRequest(ctx *kong.Context) {
 	if cli.TlsFinger != "go" {
 		switch cli.TlsFinger {
 		case "chrome":
-			req.SetTLSFingerprintChrome()
+			request.GetClient().SetTLSFingerprintChrome()
 		case "firefox":
-			req.SetTLSFingerprintFirefox()
+			request.GetClient().SetTLSFingerprintFirefox()
 		case "edge":
-			req.SetTLSFingerprintEdge()
+			request.GetClient().SetTLSFingerprintEdge()
 		case "safari":
-			req.SetTLSFingerprintSafari()
+			request.GetClient().SetTLSFingerprintSafari()
 		case "ios":
-			req.SetTLSFingerprintIOS()
+			request.GetClient().SetTLSFingerprintIOS()
 		case "android":
-			req.SetTLSFingerprintAndroid()
+			request.GetClient().SetTLSFingerprintAndroid()
 		case "random":
-			req.SetTLSFingerprintRandomized()
+			request.GetClient().SetTLSFingerprintRandomized()
 		}
 	}
 	if cli.Trace {
-		req.EnableTraceAll()
+		request.GetClient().EnableTraceAll()
 	}
 	if cli.UserAgent != "" {
-		req.SetUserAgent(cli.UserAgent)
+		request.GetClient().SetUserAgent(cli.UserAgent)
 	} else {
-		req.SetUserAgent(fmt.Sprintf("gurl %v", gurlVersion))
+		request.GetClient().SetUserAgent(fmt.Sprintf("gurl %v", gurlVersion))
 	}
 	if cli.Verbose {
-		req.EnableDumpAllWithoutBody().EnableDebugLog()
+		request.GetClient().EnableDumpAllWithoutBody().EnableDebugLog()
 	}
-	req.SetTimeout(time.Duration(cli.Timeout) * time.Millisecond)
+	// Set timeout
+	request.GetClient().SetTimeout(time.Duration(cli.Timeout) * time.Millisecond)
+	// Set impersonate
+	if cli.Impersonate != "none" {
+		switch cli.Impersonate {
+		case "chrome":
+			request.GetClient().ImpersonateChrome()
+		case "firefox":
+			request.GetClient().ImpersonateFirefox()
+		case "safari":
+			request.GetClient().ImpersonateSafari()
+		}
+	}
 }
 
 // Print raw string response or a prettified json if possible
@@ -158,7 +171,7 @@ func showTraceInfo(resp *req.Response) {
 	}
 }
 
-// Log error and quit if an error ocurred
+// Log error and quit if an error occurred
 func checkErr(err error) {
 	if err != nil {
 		log.Fatal(err)
@@ -166,55 +179,55 @@ func checkErr(err error) {
 }
 
 // Do HEAD request
-func doHeadRequest() *req.Response {
+func doHeadRequest(request *req.Request) *req.Response {
 	// Always dump headers for HEAD requests
-	req.EnableDumpAllWithoutBody()
-	resp, err := req.Head(cli.Head.Url)
+	request.GetClient().EnableDumpAllWithoutBody()
+	resp, err := request.Head(cli.Head.Url)
 	checkErr(err)
 	return resp
 }
 
 // Do GET request
-func doGetRequest() *req.Response {
-	resp, err := req.Get(cli.Get.Url)
+func doGetRequest(request *req.Request) *req.Response {
+	resp, err := request.Get(cli.Get.Url)
 	checkErr(err)
 	return resp
 }
 
 // Do POST request
-func doPostRequest() *req.Response {
+func doPostRequest(request *req.Request) *req.Response {
 	if cli.Post.ContentType != "" {
-		req.SetCommonContentType(cli.Post.ContentType)
+		request.SetContentType(cli.Post.ContentType)
 	}
-	resp, err := req.SetBody(cli.Post.Data).Post(cli.Post.Url)
+	resp, err := request.SetBody(cli.Post.Data).Post(cli.Post.Url)
 	checkErr(err)
 	return resp
 }
 
 // Do PUT request
-func doPutRequest() *req.Response {
+func doPutRequest(request *req.Request) *req.Response {
 	if cli.Put.ContentType != "" {
-		req.SetCommonContentType(cli.Put.ContentType)
+		request.SetContentType(cli.Put.ContentType)
 	}
-	resp, err := req.SetBody(cli.Put.Data).Put(cli.Put.Url)
+	resp, err := request.SetBody(cli.Put.Data).Put(cli.Put.Url)
 	checkErr(err)
 	return resp
 }
 
 // Do PATCH request
-func doPatchRequest() *req.Response {
+func doPatchRequest(request *req.Request) *req.Response {
 	if cli.Patch.ContentType != "" {
-		req.SetCommonContentType(cli.Patch.ContentType)
+		request.SetContentType(cli.Patch.ContentType)
 	}
-	resp, err := req.SetBody(cli.Patch.Data).Patch(cli.Patch.Url)
+	resp, err := request.SetBody(cli.Patch.Data).Patch(cli.Patch.Url)
 	checkErr(err)
 	return resp
 }
 
 // Do DELETE request
-func doDeleteRequest() *req.Response {
+func doDeleteRequest(request *req.Request) *req.Response {
 	if cli.Delete.ContentType != "" {
-		req.SetCommonContentType(cli.Delete.ContentType)
+		request.SetContentType(cli.Delete.ContentType)
 	}
 	// We need to declare the vars outside if/else scope to avoid unused/undeclared vars errors
 	var resp *req.Response
@@ -222,17 +235,17 @@ func doDeleteRequest() *req.Response {
 	// According to https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE
 	// DELETE method may have a body
 	if cli.Delete.Data != "" {
-		resp, err = req.SetBody(cli.Delete.Data).Delete(cli.Delete.Url)
+		resp, err = request.SetBody(cli.Delete.Data).Delete(cli.Delete.Url)
 	} else {
-		resp, err = req.Delete(cli.Delete.Url)
+		resp, err = request.Delete(cli.Delete.Url)
 	}
 	checkErr(err)
 	return resp
 }
 
 // Do OPTIONS request
-func doOptionsRequest() *req.Response {
-	resp, err := req.Options(cli.Options.Url)
+func doOptionsRequest(request *req.Request) *req.Response {
+	resp, err := request.Options(cli.Options.Url)
 	checkErr(err)
 	return resp
 }
@@ -248,8 +261,10 @@ func main() {
 			Compact: true,
 			Summary: true,
 		}))
+	// Create a new request object from client
+	request := req.C().R()
 	// Configure http request based on cli arguments
-	configRequest(ctx)
+	configRequest(ctx, request)
 	// Store response pointer
 	var resp *req.Response
 	// Execute cli command accordingly
@@ -258,19 +273,19 @@ func main() {
 		fmt.Println(gurlVersion)
 		os.Exit(0)
 	case "head <url>":
-		resp = doHeadRequest()
+		resp = doHeadRequest(request)
 	case "get <url>":
-		resp = doGetRequest()
+		resp = doGetRequest(request)
 	case "post <url>":
-		resp = doPostRequest()
+		resp = doPostRequest(request)
 	case "put <url>":
-		resp = doPutRequest()
+		resp = doPutRequest(request)
 	case "patch <url>":
-		resp = doPatchRequest()
+		resp = doPatchRequest(request)
 	case "delete <url>":
-		resp = doDeleteRequest()
+		resp = doDeleteRequest(request)
 	case "options <url>":
-		resp = doOptionsRequest()
+		resp = doOptionsRequest(request)
 	}
 	// Print raw response or a prettified json
 	printResponse(resp.String())
