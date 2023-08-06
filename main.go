@@ -27,6 +27,7 @@ var cli struct {
 	Impersonate     string            `help:"Fully impersonate chrome, firefox or safari browser (this will automatically set headers, headers order and tls fingerprint)." enum:"chrome, firefox, safari, none" default:"none"`
 	Insecure        bool              `help:"Allow insecure SSL connections." short:"i" default:"false"`
 	RawResponse     bool              `help:"Print raw response string (disable json prettify)." default:"false"`
+	Retries         int               `help:"Number of retries in case of errors and http status code >= 500." short:"r" default:"0"`
 	Timeout         int               `help:"Timeout in milliseconds." short:"t" default:"10000"`
 	TlsFinger       string            `help:"TLS Fingerprint: chrome, firefox, edge, safari, ios, android, random or go." enum:"chrome, firefox, edge, safari, ios, android, random, go" default:"go"`
 	Trace           bool              `help:"Show tracing/performance information." default:"false"`
@@ -77,6 +78,8 @@ func setContentHeader(httpMethod string, request *req.Request) {
 func configRequest(ctx *kong.Context, request *req.Request) {
 	// Set default http scheme if no scheme is provided
 	request.GetClient().SetScheme("http")
+	// Set client timeout
+	request.GetClient().SetTimeout(time.Duration(cli.Timeout) * time.Millisecond)
 	// Set application/json content-type for post, put and patch methods
 	setContentHeader(ctx.Args[0], request)
 	if cli.Auth != "" {
@@ -95,6 +98,20 @@ func configRequest(ctx *kong.Context, request *req.Request) {
 	}
 	if cli.Insecure {
 		request.GetClient().EnableInsecureSkipVerify()
+	}
+	if cli.Retries > 0 {
+		request.SetRetryCount(cli.Retries)
+		// Exponential backoff
+		request.SetRetryBackoffInterval(1*time.Second, 5*time.Second)
+		// Retry in case of errors or http status >= 500
+		request.AddRetryCondition(func(resp *req.Response, err error) bool {
+			return err != nil || resp.StatusCode >= 500
+		})
+		// Log to stderr if a retry occurs
+		request.AddRetryHook(func(resp *req.Response, err error) {
+			req := resp.Request.RawRequest
+			log.Printf("Retrying %v request to %v", req.Method, req.URL)
+		})
 	}
 	// Sites to check finger hash:
 	// - https://tls.peet.ws/api/clean
@@ -128,9 +145,7 @@ func configRequest(ctx *kong.Context, request *req.Request) {
 	if cli.Verbose {
 		request.GetClient().EnableDumpAllWithoutBody().EnableDebugLog()
 	}
-	// Set timeout
-	request.GetClient().SetTimeout(time.Duration(cli.Timeout) * time.Millisecond)
-	// Set impersonate
+	// Set impersonate as the last step to override possible earlier configurations
 	if cli.Impersonate != "none" {
 		switch cli.Impersonate {
 		case "chrome":
