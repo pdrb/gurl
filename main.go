@@ -10,8 +10,8 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/TylerBrock/colorjson"
 	"github.com/alecthomas/kong"
+	"github.com/hokaccha/go-prettyjson"
 	"github.com/imroc/req/v3"
 )
 
@@ -160,18 +160,16 @@ func configRequest(ctx *kong.Context, request *req.Request) {
 
 // Print raw string response or a prettified json if possible
 func printResponse(rawStr string) {
-	var jsonObj map[string]interface{}
 	if cli.RawResponse {
 		fmt.Print(rawStr)
 		return
 	}
+	var jsonObj map[string]interface{}
 	err := json.Unmarshal([]byte(rawStr), &jsonObj)
 	if err != nil {
 		fmt.Print(rawStr)
 	} else {
-		fomatter := colorjson.NewFormatter()
-		fomatter.Indent = 2
-		prettyJson, _ := fomatter.Marshal(jsonObj)
+		prettyJson, _ := prettyjson.Marshal(jsonObj)
 		fmt.Print(string(prettyJson))
 	}
 }
