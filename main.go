@@ -36,7 +36,7 @@ var cli struct {
 
 	Get struct {
 		Url string `arg:"" help:"Url to access."`
-	} `cmd:"" help:"GET HTTP method."`
+	} `cmd:"" help:"GET HTTP method." default:"withargs"`
 	Head struct {
 		Url string `arg:"" help:"Url to access."`
 	} `cmd:"" help:"HEAD HTTP method."`
