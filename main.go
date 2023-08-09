@@ -16,22 +16,23 @@ import (
 )
 
 // Program version
-const gurlVersion = "1.1.0"
+const gurlVersion = "1.2.0"
 
 // Cli arguments
 var cli struct {
-	Auth            string            `help:"Basic HTTP authentication in the format username:password." short:"a"`
+	Auth            string            `help:"Basic HTTP authentication in the format username:password." short:"u"`
 	BearerToken     string            `help:"Set bearer auth token." short:"b"`
 	DisableRedirect bool              `help:"Disable redirects." default:"false"`
+	ForceHttp1      bool              `help:"Force HTTP/1.1 to be used." default:"false"`
 	Headers         map[string]string `help:"HTTP headers in the format: \"header1=value1;header2=value2\"." short:"H"`
 	Impersonate     string            `help:"Fully impersonate chrome, firefox or safari browser (this will automatically set headers, headers order and tls fingerprint)." enum:"chrome, firefox, safari, none" default:"none"`
-	Insecure        bool              `help:"Allow insecure SSL connections." short:"i" default:"false"`
+	Insecure        bool              `help:"Allow insecure SSL connections." short:"k" default:"false"`
 	RawResponse     bool              `help:"Print raw response string (disable json prettify)." default:"false"`
 	Retries         int               `help:"Number of retries in case of errors and http status code >= 500." short:"r" default:"0"`
 	Timeout         int               `help:"Timeout in milliseconds." short:"t" default:"10000"`
 	TlsFinger       string            `help:"TLS Fingerprint: chrome, firefox, edge, safari, ios, android, random or go." enum:"chrome, firefox, edge, safari, ios, android, random, go" default:"go"`
 	Trace           bool              `help:"Show tracing/performance information." default:"false"`
-	UserAgent       string            `help:"Set User-Agent http header." short:"u"`
+	UserAgent       string            `help:"Set User-Agent http header." short:"A"`
 	Verbose         bool              `help:"Enable verbose/debug mode." short:"v" default:"false"`
 
 	Get struct {
@@ -92,6 +93,9 @@ func configRequest(ctx *kong.Context, request *req.Request) {
 	}
 	if cli.DisableRedirect {
 		request.GetClient().SetRedirectPolicy(req.NoRedirectPolicy())
+	}
+	if cli.ForceHttp1 {
+		request.GetClient().EnableForceHTTP1()
 	}
 	if len(cli.Headers) > 0 {
 		request.SetHeaders(cli.Headers)
