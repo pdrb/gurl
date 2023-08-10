@@ -29,6 +29,7 @@ var cli struct {
 	Headers         map[string]string `help:"HTTP headers in the format: \"header1=value1;header2=value2\"." short:"H"`
 	Impersonate     string            `help:"Fully impersonate chrome, firefox or safari browser (this will automatically set headers, headers order and tls fingerprint)." enum:"chrome, firefox, safari, none" default:"none"`
 	Insecure        bool              `help:"Allow insecure SSL connections." short:"k" default:"false"`
+	OutputFile      string            `help:"Save response to file." short:"o" type:"path"`
 	Proxy           string            `help:"Proxy to use, e.g.: \"http://user:pass@myproxy:8080\"."`
 	RawResponse     bool              `help:"Print raw response string (disable json prettify)." default:"false"`
 	Retries         int               `help:"Number of retries in case of errors and http status code >= 500." short:"r" default:"0"`
@@ -111,6 +112,16 @@ func configRequest(ctx *kong.Context, request *req.Request) {
 	}
 	if cli.Insecure {
 		request.GetClient().EnableInsecureSkipVerify()
+	}
+	if cli.OutputFile != "" {
+		request.SetOutputFile(cli.OutputFile)
+		// Register callback to show download progress
+		ProgressCallback := func(info req.DownloadInfo) {
+			if info.Response.Response != nil {
+				log.Printf("Downloading %.2f%%", float64(info.DownloadedSize)/float64(info.Response.ContentLength)*100.0)
+			}
+		}
+		request.SetDownloadCallback(ProgressCallback)
 	}
 	if cli.Proxy != "" {
 		request.GetClient().SetProxyURL(cli.Proxy)
