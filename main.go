@@ -22,11 +22,14 @@ const gurlVersion = "1.2.0"
 var cli struct {
 	Auth            string            `help:"Basic HTTP authentication in the format username:password." short:"u"`
 	BearerToken     string            `help:"Set bearer auth token." short:"b"`
+	CACert          string            `help:"CA certificate file." type:"path"`
+	ClientCert      []string          `help:"Client cert and key files separated by comma: \"cert.pem,key.pem\"." type:"path"`
 	DisableRedirect bool              `help:"Disable redirects." default:"false"`
 	ForceHttp1      bool              `help:"Force HTTP/1.1 to be used." default:"false"`
 	Headers         map[string]string `help:"HTTP headers in the format: \"header1=value1;header2=value2\"." short:"H"`
 	Impersonate     string            `help:"Fully impersonate chrome, firefox or safari browser (this will automatically set headers, headers order and tls fingerprint)." enum:"chrome, firefox, safari, none" default:"none"`
 	Insecure        bool              `help:"Allow insecure SSL connections." short:"k" default:"false"`
+	Proxy           string            `help:"Proxy to use, e.g.: \"http://user:pass@myproxy:8080\"."`
 	RawResponse     bool              `help:"Print raw response string (disable json prettify)." default:"false"`
 	Retries         int               `help:"Number of retries in case of errors and http status code >= 500." short:"r" default:"0"`
 	Timeout         int               `help:"Timeout in milliseconds." short:"t" default:"10000"`
@@ -91,6 +94,12 @@ func configRequest(ctx *kong.Context, request *req.Request) {
 	if cli.BearerToken != "" {
 		request.SetBearerAuthToken(cli.BearerToken)
 	}
+	if cli.CACert != "" {
+		request.GetClient().SetRootCertsFromFile(cli.CACert)
+	}
+	if len(cli.ClientCert) > 1 {
+		request.GetClient().SetCertFromFile(cli.ClientCert[0], cli.ClientCert[1])
+	}
 	if cli.DisableRedirect {
 		request.GetClient().SetRedirectPolicy(req.NoRedirectPolicy())
 	}
@@ -102,6 +111,9 @@ func configRequest(ctx *kong.Context, request *req.Request) {
 	}
 	if cli.Insecure {
 		request.GetClient().EnableInsecureSkipVerify()
+	}
+	if cli.Proxy != "" {
+		request.GetClient().SetProxyURL(cli.Proxy)
 	}
 	if cli.Retries > 0 {
 		request.SetRetryCount(cli.Retries)
