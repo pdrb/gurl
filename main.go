@@ -20,23 +20,23 @@ const gurlVersion = "1.2.0"
 
 // Cli arguments
 var cli struct {
-	Auth            string            `help:"Basic HTTP authentication in the format username:password." short:"u"`
-	BearerToken     string            `help:"Set bearer auth token." short:"b"`
-	CACert          string            `help:"CA certificate file." type:"path"`
-	ClientCert      []string          `help:"Client cert and key files separated by comma: \"cert.pem,key.pem\"." type:"path"`
+	Auth            string            `help:"Basic HTTP authentication in the format username:password." placeholder:"auth" short:"u"`
+	BearerToken     string            `help:"Set bearer auth token." placeholder:"token" short:"b"`
+	CACert          string            `help:"CA certificate file." placeholder:"file" type:"path"`
+	ClientCert      []string          `help:"Client cert and key files separated by comma: \"cert.pem,key.pem\"." placeholder:"cert-file,key-file" type:"path"`
 	DisableRedirect bool              `help:"Disable redirects." default:"false"`
 	ForceHttp1      bool              `help:"Force HTTP/1.1 to be used." default:"false"`
-	Headers         map[string]string `help:"HTTP headers in the format: \"header1=value1;header2=value2\"." short:"H"`
+	Headers         map[string]string `help:"HTTP headers in the format: \"header1=value1;header2=value2\"." placeholder:"h1=v1;h2=v2" short:"H"`
 	Impersonate     string            `help:"Fully impersonate chrome, firefox or safari browser (this will automatically set headers, headers order and tls fingerprint)." enum:"chrome, firefox, safari, none" default:"none"`
 	Insecure        bool              `help:"Allow insecure SSL connections." short:"k" default:"false"`
-	OutputFile      string            `help:"Save response to file." short:"o" type:"path"`
-	Proxy           string            `help:"Proxy to use, e.g.: \"http://user:pass@myproxy:8080\"."`
+	OutputFile      string            `help:"Save response to file." short:"o" placeholder:"file" type:"path"`
+	Proxy           string            `help:"Proxy to use, e.g.: \"http://user:pass@myproxy:8080\"." placeholder:"proxy"`
 	RawResponse     bool              `help:"Print raw response string (disable json prettify)." default:"false"`
 	Retries         int               `help:"Number of retries in case of errors and http status code >= 500." short:"r" default:"0"`
 	Timeout         int               `help:"Timeout in milliseconds." short:"t" default:"10000"`
 	TlsFinger       string            `help:"TLS Fingerprint: chrome, firefox, edge, safari, ios, android, random or go." enum:"chrome, firefox, edge, safari, ios, android, random, go" default:"go"`
 	Trace           bool              `help:"Show tracing/performance information." default:"false"`
-	UserAgent       string            `help:"Set User-Agent http header." short:"A"`
+	UserAgent       string            `help:"Set User-Agent http header." placeholder:"agent" short:"A"`
 	Verbose         bool              `help:"Enable verbose/debug mode." short:"v" default:"false"`
 
 	Get struct {
@@ -47,23 +47,27 @@ var cli struct {
 	} `cmd:"" help:"HEAD HTTP method."`
 	Post struct {
 		Url         string `arg:"" help:"Url to access."`
-		Data        string `help:"Data payload (request body)." short:"d"`
-		ContentType string `help:"Content-Type http header, default is application/json." short:"c"`
+		Data        string `help:"Data payload (request body)." xor:"data" placeholder:"payload" short:"d"`
+		DataFile    string `help:"Read data payload from file." xor:"data" placeholder:"file" short:"f" type:"path"`
+		ContentType string `help:"Content-Type http header, default is application/json." placeholder:"content" short:"c"`
 	} `cmd:"" help:"POST HTTP method."`
 	Put struct {
 		Url         string `arg:"" help:"Url to access."`
-		Data        string `help:"Data payload (request body)." short:"d"`
-		ContentType string `help:"Content-Type http header, default is application/json." short:"c"`
+		Data        string `help:"Data payload (request body)." xor:"data" placeholder:"payload" short:"d"`
+		DataFile    string `help:"Read data payload from file." xor:"data" placeholder:"file" short:"f" type:"path"`
+		ContentType string `help:"Content-Type http header, default is application/json." placeholder:"content" short:"c"`
 	} `cmd:"" help:"PUT HTTP method."`
 	Patch struct {
 		Url         string `arg:"" help:"Url to access."`
-		Data        string `help:"Data payload (request body)." short:"d"`
-		ContentType string `help:"Content-Type http header, default is application/json." short:"c"`
+		Data        string `help:"Data payload (request body)." xor:"data" placeholder:"payload" short:"d"`
+		DataFile    string `help:"Read data payload from file." xor:"data" placeholder:"file" short:"f" type:"path"`
+		ContentType string `help:"Content-Type http header, default is application/json." placeholder:"content" short:"c"`
 	} `cmd:"" help:"PATCH HTTP method."`
 	Delete struct {
 		Url         string `arg:"" help:"Url to access."`
-		Data        string `help:"Data payload (request body)." short:"d"`
-		ContentType string `help:"Content-Type http header, default is text/plain." short:"c"`
+		Data        string `help:"Data payload (request body)." xor:"data" placeholder:"payload" short:"d"`
+		DataFile    string `help:"Read data payload from file." xor:"data" placeholder:"file" short:"f" type:"path"`
+		ContentType string `help:"Content-Type http header, default is text/plain." placeholder:"content" short:"c"`
 	} `cmd:"" help:"DELETE HTTP method."`
 	Options struct {
 		Url string `arg:"" help:"Url to access."`
@@ -218,6 +222,13 @@ func checkErr(err error) {
 	}
 }
 
+// Read file content
+func readFile(filename string) string {
+	content, err := os.ReadFile(filename)
+	checkErr(err)
+	return string(content)
+}
+
 // Do HEAD request
 func doHeadRequest(request *req.Request) *req.Response {
 	// Always dump headers for HEAD requests
@@ -239,7 +250,13 @@ func doPostRequest(request *req.Request) *req.Response {
 	if cli.Post.ContentType != "" {
 		request.SetContentType(cli.Post.ContentType)
 	}
-	resp, err := request.SetBody(cli.Post.Data).Post(cli.Post.Url)
+	var payload string
+	if cli.Post.Data != "" {
+		payload = cli.Post.Data
+	} else if cli.Post.DataFile != "" {
+		payload = readFile(cli.Post.DataFile)
+	}
+	resp, err := request.SetBody(payload).Post(cli.Post.Url)
 	checkErr(err)
 	return resp
 }
@@ -249,7 +266,13 @@ func doPutRequest(request *req.Request) *req.Response {
 	if cli.Put.ContentType != "" {
 		request.SetContentType(cli.Put.ContentType)
 	}
-	resp, err := request.SetBody(cli.Put.Data).Put(cli.Put.Url)
+	var payload string
+	if cli.Put.Data != "" {
+		payload = cli.Put.Data
+	} else if cli.Put.DataFile != "" {
+		payload = readFile(cli.Put.DataFile)
+	}
+	resp, err := request.SetBody(payload).Put(cli.Put.Url)
 	checkErr(err)
 	return resp
 }
@@ -259,7 +282,13 @@ func doPatchRequest(request *req.Request) *req.Response {
 	if cli.Patch.ContentType != "" {
 		request.SetContentType(cli.Patch.ContentType)
 	}
-	resp, err := request.SetBody(cli.Patch.Data).Patch(cli.Patch.Url)
+	var payload string
+	if cli.Patch.Data != "" {
+		payload = cli.Patch.Data
+	} else if cli.Patch.DataFile != "" {
+		payload = readFile(cli.Patch.DataFile)
+	}
+	resp, err := request.SetBody(payload).Patch(cli.Patch.Url)
 	checkErr(err)
 	return resp
 }
@@ -276,6 +305,9 @@ func doDeleteRequest(request *req.Request) *req.Response {
 	// DELETE method may have a body
 	if cli.Delete.Data != "" {
 		resp, err = request.SetBody(cli.Delete.Data).Delete(cli.Delete.Url)
+	} else if cli.Delete.DataFile != "" {
+		payload := readFile(cli.Delete.DataFile)
+		resp, err = request.SetBody(payload).Delete(cli.Delete.Url)
 	} else {
 		resp, err = request.Delete(cli.Delete.Url)
 	}
