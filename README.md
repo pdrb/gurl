@@ -1,4 +1,10 @@
 # gurl
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/pdrb/gurl)](https://goreportcard.com/report/github.com/pdrb/gurl)
+[![Release](https://github.com/pdrb/gurl/actions/workflows/release.yml/badge.svg)](https://github.com/pdrb/gurl/actions/workflows/release.yml)
+[![Releases](https://img.shields.io/github/v/release/pdrb/gurl.svg)](https://github.com/pdrb/gurl/releases)
+[![LICENSE](https://img.shields.io/github/license/pdrb/gurl)](https://github.com/pdrb/gurl/blob/main/LICENSE)
+
 A simple http client cli written in Go.
 
 ## Install
