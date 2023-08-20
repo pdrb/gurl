@@ -1,11 +1,28 @@
 # gurl
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/pdrb/gurl)](https://goreportcard.com/report/github.com/pdrb/gurl)
+[![CI](https://github.com/pdrb/gurl/actions/workflows/ci.yml/badge.svg)](https://github.com/pdrb/gurl/actions/workflows/ci.yml)
 [![Release](https://github.com/pdrb/gurl/actions/workflows/release.yml/badge.svg)](https://github.com/pdrb/gurl/actions/workflows/release.yml)
 [![Releases](https://img.shields.io/github/v/release/pdrb/gurl.svg)](https://github.com/pdrb/gurl/releases)
 [![LICENSE](https://img.shields.io/github/license/pdrb/gurl)](https://github.com/pdrb/gurl/blob/main/LICENSE)
 
 A simple http client cli written in Go.
+
+Thanks to [req](https://github.com/imroc/req) (and [utls](https://github.com/refraction-networking/utls)) there are some cool features like:
+
+* TLS Fingerprinting
+* HTTP Fingerprinting
+* Basic/Bearer Authentication
+* Custom Certificates
+* Proxy Support
+* Retries
+* Tracing
+
+Check usage below for full list of supported options.
+
+Whenever possible, the options are similar to `curl` with some sensible defaults applied like `application/json` content type for post, put and patch methods.
+
+Also, if the response is valid json, it will be automatically prettified (this can be disabled using `--raw-response`).
 
 ## Install
 
