@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/alecthomas/kong v0.8.0
 	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f
-	github.com/imroc/req/v3 v3.41.4
+	github.com/imroc/req/v3 v3.41.10
 	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
 )
 
