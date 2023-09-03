@@ -16,7 +16,7 @@ import (
 )
 
 // Program version
-const gurlVersion = "1.4.0"
+const gurlVersion = "1.5.0"
 
 // Cli arguments
 var cli struct {
@@ -28,7 +28,7 @@ var cli struct {
 	BearerToken     string            `help:"Set bearer auth token." placeholder:"token" short:"b"`
 	CACert          string            `help:"CA certificate file." placeholder:"file" type:"path"`
 	ClientCert      []string          `help:"Client cert and key files separated by comma: \"cert.pem,key.pem\"." placeholder:"cert-file,key-file" type:"path"`
-	ContentType     string            `help:"Content-Type http header, default is application/json for post, put and patch methods." placeholder:"content" short:"c"`
+	ContentType     string            `help:"Content-Type http header, default is application/json for POST, PUT and PATCH methods." placeholder:"content" short:"c"`
 	Data            string            `help:"Data payload (request body)." xor:"data" placeholder:"payload" short:"d"`
 	DataFile        string            `help:"Read data payload from file." xor:"data" placeholder:"file" short:"f" type:"path"`
 	DisableRedirect bool              `help:"Disable redirects." default:"false"`
@@ -36,7 +36,7 @@ var cli struct {
 	Headers         map[string]string `help:"HTTP headers in the format: \"header1=value1;header2=value2\"." placeholder:"h1=v1;h2=v2" short:"H"`
 	Impersonate     string            `help:"Fully impersonate chrome, firefox or safari browser (this will automatically set headers, headers order and tls fingerprint)." enum:"chrome, firefox, safari, none" default:"none"`
 	Insecure        bool              `help:"Allow insecure SSL connections." short:"k" default:"false"`
-	Method          string            `help:"Http method: get, head, post, put, patch, delete or options." enum:"get, head, post, put, patch, delete, options" short:"X" default:"get"`
+	Method          string            `help:"Http method: GET, HEAD, POST, PUT, PATCH, DELETE or OPTIONS." enum:"GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS" short:"X" default:"GET"`
 	OutputFile      string            `help:"Save response to file." short:"o" placeholder:"file" type:"path"`
 	Proxy           string            `help:"Proxy to use, e.g.: \"http://user:pass@myproxy:8080\"." placeholder:"proxy"`
 	RawResponse     bool              `help:"Print raw response string (disable json prettify)." default:"false"`
@@ -49,9 +49,9 @@ var cli struct {
 	Version         kong.VersionFlag  `help:"Show version and exit." short:"V"`
 }
 
-// Set application/json content-type http header for post, put and patch methods
+// Set application/json content-type http header for POST, PUT and PATCH methods
 func setContentHeader(httpMethod string, request *req.Request) {
-	methods := []string{"post", "put", "patch"}
+	methods := []string{"POST", "PUT", "PATCH"}
 	if slices.Contains(methods, httpMethod) {
 		request.SetContentType("application/json; charset=utf-8")
 	}
@@ -63,7 +63,7 @@ func configRequest(ctx *kong.Context, request *req.Request) {
 	request.GetClient().SetScheme("http")
 	// Set client timeout
 	request.GetClient().SetTimeout(time.Duration(cli.Timeout) * time.Millisecond)
-	// Set application/json content-type for post, put and patch methods
+	// Set application/json content-type for POST, PUT and PATCH methods
 	setContentHeader(cli.Method, request)
 	if cli.Auth != "" {
 		splitAuth := strings.Split(cli.Auth, ":")
@@ -306,19 +306,19 @@ func run() {
 	var resp *req.Response
 	// Execute cli command accordingly
 	switch cli.Method {
-	case "head":
+	case "HEAD":
 		resp = doHeadRequest(request)
-	case "get":
+	case "GET":
 		resp = doGetRequest(request)
-	case "post":
+	case "POST":
 		resp = doPostRequest(request)
-	case "put":
+	case "PUT":
 		resp = doPutRequest(request)
-	case "patch":
+	case "PATCH":
 		resp = doPatchRequest(request)
-	case "delete":
+	case "DELETE":
 		resp = doDeleteRequest(request)
-	case "options":
+	case "OPTIONS":
 		resp = doOptionsRequest(request)
 	}
 	// Print raw response or a prettified json
