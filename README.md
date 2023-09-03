@@ -54,7 +54,7 @@ Flags:
                                 Client cert and key files separated by comma:
                                 "cert.pem,key.pem".
   -c, --content-type=content    Content-Type http header, default is
-                                application/json for post, put and patch
+                                application/json for POST, PUT and PATCH
                                 methods.
   -d, --data=payload            Data payload (request body).
   -f, --data-file=file          Read data payload from file.
@@ -66,8 +66,8 @@ Flags:
                                 browser (this will automatically set headers,
                                 headers order and tls fingerprint).
   -k, --insecure                Allow insecure SSL connections.
-  -X, --method="get"            Http method: get, head, post, put, patch,
-                                delete or options.
+  -X, --method="GET"            Http method: GET, HEAD, POST, PUT, PATCH,
+                                DELETE or OPTIONS.
   -o, --output-file=file        Save response to file.
       --proxy=proxy             Proxy to use, e.g.:
                                 "http://user:pass@myproxy:8080".
@@ -87,13 +87,13 @@ Flags:
 ## Example
 
 ```text
-$ gurl -X post 'https://httpbin.org/anything?var1=value1&var2=value2' \
+$ gurl -X POST 'https://httpbin.org/anything?var1=value1&var2=value2' \
     -u user:pass \
     -H 'header1=value1;header2=value2' \
     -d '{"user": "name"}' \
     -v --trace
 
-2023/08/14 22:06:14.375996 DEBUG [req] HTTP/2 POST https://httpbin.org/anything?var1=value1&var2=value2
+2023/09/03 00:21:10.926979 DEBUG [req] HTTP/2 POST https://httpbin.org/anything?var1=value1&var2=value2
 :authority: httpbin.org
 :method: POST
 :path: /anything?var1=value1&var2=value2
@@ -102,12 +102,12 @@ content-type: application/json; charset=utf-8
 authorization: Basic dXNlcjpwYXNz
 header1: value1
 header2: value2
-user-agent: gurl 1.3.0
+user-agent: gurl 1.5.0
 content-length: 16
 accept-encoding: gzip
 
 :status: 200
-date: Tue, 15 Aug 2023 01:06:15 GMT
+date: Sun, 03 Sep 2023 03:21:12 GMT
 content-type: application/json
 content-length: 644
 server: gunicorn/19.9.0
@@ -130,26 +130,26 @@ access-control-allow-credentials: true
     "Header1": "value1",
     "Header2": "value2",
     "Host": "httpbin.org",
-    "User-Agent": "gurl 1.3.0",
-    "X-Amzn-Trace-Id": "Root=1-64dacf87-53be09483437853617291edd"
+    "User-Agent": "gurl 1.5.0",
+    "X-Amzn-Trace-Id": "Root=1-64f3fba8-52bd3b8337869ce91c0b44d1"
   },
   "json": {
     "user": "name"
   },
   "method": "POST",
-  "origin": "187.0.35.180",
+  "origin": "187.0.34.127",
   "url": "https://httpbin.org/anything?var1=value1&var2=value2"
 }
 
 ------- TRACE INFO -------
-TotalTime         : 695.0164ms
-DNSLookupTime     : 19.5851ms
-TCPConnectTime    : 158.1832ms
-TLSHandshakeTime  : 327.1256ms
-FirstResponseTime : 185.8961ms
-ResponseTime      : 535.4µs
+TotalTime         : 1.0029421s
+DNSLookupTime     : 6.4776ms
+TCPConnectTime    : 198.6111ms
+TLSHandshakeTime  : 423.5118ms
+FirstResponseTime : 368.5909ms
+ResponseTime      : 549.8µs
 IsConnReused:     : false
-RemoteAddr        : 3.225.120.215:443
+RemoteAddr        : 54.175.87.239:443
 
-the request total time is 695.0164ms, and costs 327.1256ms on tls handshake
+the request total time is 1.0029421s, and costs 423.5118ms on tls handshake
 ```
