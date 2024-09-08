@@ -16,7 +16,7 @@ import (
 )
 
 // Program version
-const gurlVersion = "1.5.0"
+const gurlVersion = "1.6.0"
 
 // Cli arguments
 var cli struct {
@@ -58,7 +58,7 @@ func setContentHeader(httpMethod string, request *req.Request) {
 }
 
 // Configure our http request
-func configRequest(ctx *kong.Context, request *req.Request) {
+func configRequest(request *req.Request) {
 	// Set default http scheme if no scheme is provided
 	request.GetClient().SetScheme("http")
 	// Set client timeout
@@ -289,7 +289,7 @@ func doOptionsRequest(request *req.Request) *req.Response {
 // Run our cli
 func run() {
 	// Parse cli arguments
-	ctx := kong.Parse(&cli,
+	kong.Parse(&cli,
 		kong.Name("gurl"),
 		kong.Description("A simple http client cli written in Go."),
 		kong.UsageOnError(),
@@ -301,7 +301,7 @@ func run() {
 	// Create a new request object from client
 	request := req.C().R()
 	// Configure http request based on cli arguments
-	configRequest(ctx, request)
+	configRequest(request)
 	// Store response pointer
 	var resp *req.Response
 	// Execute cli command accordingly
