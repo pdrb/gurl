@@ -5,14 +5,15 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**.md'
+      - "**.md"
+      - "Makefile"
   workflow_dispatch:
 
 jobs:
   test:
     strategy:
       matrix:
-        go: ['1.22', '1.23']
+        go: ["1.22", "1.23"]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
