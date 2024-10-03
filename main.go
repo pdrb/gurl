@@ -16,7 +16,7 @@ import (
 )
 
 // Program version
-const gurlVersion = "1.6.0"
+const gurlVersion = "1.7.0"
 
 // Cli arguments
 var cli struct {

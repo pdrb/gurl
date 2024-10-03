@@ -78,16 +78,16 @@ func Example() {
 
 	// Output:
 	// {"body":"{\"name\": \"user\"}","method":"POST","auth_header":["Basic dXNlcjpwYXNz"],"content_header":["application/json; charset=utf-8"],"agent_header":["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"]}
-	// {"body":"{\"name\": \"user\"}","method":"PUT","auth_header":["Bearer Token"],"content_header":["application/json; charset=utf-8"],"agent_header":["gurl 1.6.0"]}
+	// {"body":"{\"name\": \"user\"}","method":"PUT","auth_header":["Bearer Token"],"content_header":["application/json; charset=utf-8"],"agent_header":["gurl 1.7.0"]}
 	// {"body":"{\"name\": \"user\"}","method":"PATCH","auth_header":null,"content_header":["text"],"agent_header":["Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:105.0) Gecko/20100101 Firefox/105.0"]}
 	// {"body":"","method":"DELETE","auth_header":null,"content_header":null,"agent_header":["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15"]}
-	// {"body":"{\"name\": \"user\"}","method":"DELETE","auth_header":null,"content_header":["text/plain; charset=utf-8"],"agent_header":["gurl 1.6.0"]}
-	// {"body":"","method":"OPTIONS","auth_header":null,"content_header":null,"agent_header":["gurl 1.6.0"]}
-	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.6.0"]}
+	// {"body":"{\"name\": \"user\"}","method":"DELETE","auth_header":null,"content_header":["text/plain; charset=utf-8"],"agent_header":["gurl 1.7.0"]}
+	// {"body":"","method":"OPTIONS","auth_header":null,"content_header":null,"agent_header":["gurl 1.7.0"]}
+	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.7.0"]}
 	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["MyAgent"]}
-	// {"body":"{\"fromfile\": true}","method":"POST","auth_header":null,"content_header":["application/json; charset=utf-8"],"agent_header":["gurl 1.6.0"]}
-	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.6.0"]}
-	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.6.0"]}
-	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.6.0"]}
-	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.6.0"]}
+	// {"body":"{\"fromfile\": true}","method":"POST","auth_header":null,"content_header":["application/json; charset=utf-8"],"agent_header":["gurl 1.7.0"]}
+	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.7.0"]}
+	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.7.0"]}
+	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.7.0"]}
+	// {"body":"","method":"GET","auth_header":null,"content_header":null,"agent_header":["gurl 1.7.0"]}
 }
