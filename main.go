@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strings"
 	"time"
-
-	"golang.org/x/exp/slices"
 
 	"github.com/alecthomas/kong"
 	"github.com/hokaccha/go-prettyjson"
@@ -16,7 +15,7 @@ import (
 )
 
 // Program version
-const gurlVersion = "1.7.0"
+const gurlVersion = "1.8.0"
 
 // Cli arguments
 var cli struct {
@@ -169,7 +168,7 @@ func printResponse(rawStr string) {
 		fmt.Print(rawStr)
 		return
 	}
-	var jsonObj map[string]interface{}
+	var jsonObj map[string]any
 	err := json.Unmarshal([]byte(rawStr), &jsonObj)
 	if err != nil {
 		fmt.Print(rawStr)
